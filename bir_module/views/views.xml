@@ -68,6 +68,12 @@
         <field name="target">main</field>
     </record>
 
+    <record id="bir_module.action_1601e_page" model="ir.actions.client">
+      <field name="name">BIR Form 1601E</field>
+      <field name="tag">form_1601e_page</field>
+        <field name="target">main</field>
+    </record>
+
     <record id="bir_module.action_sls_report" model="ir.actions.client">
       <field name="name">MAP Report</field>
       <field name="tag">sls_report_page</field>
@@ -81,7 +87,7 @@
     </record>
 
     <!-- Top menu item -->
-    <menuitem name="BIR Module" id="bir_module.menu_root" web_icon="bir_module,static/src/img/icon.png"/>
+    <menuitem name="BIR" id="bir_module.menu_root" web_icon="bir_module,static/src/img/icon.png"/>
     
     <!-- menu categories -->
     <menuitem name="Forms" id="bir_module.menu_1" parent="bir_module.menu_root"/>
@@ -91,13 +97,15 @@
     <menuitem name="2307" id="bir_module.2307" parent="bir_module.menu_1" action="bir_module.action_2307_page"/>
     <menuitem name="2550M" id="bir_module.2550M" parent="bir_module.menu_1" action="bir_module.action_2550M_page"/>
     <menuitem name="2550Q" id="bir_module.2550Q" parent="bir_module.menu_1" action="bir_module.action_2550Q_page"/>
+    <menuitem name="1601E" id="bir_module.1601e" parent="bir_module.menu_1" action="bir_module.action_1601e_page"/>
+
     <menuitem name="SAWT" id="bir_module.report1" parent="bir_module.reports" action="bir_module.action_sawt_report"/>
     <menuitem name="MAP" id="bir_module.report2" parent="bir_module.reports" action="bir_module.action_map_report"/>
     <menuitem name="SLS" id="bir_module.sls" parent="bir_module.reports" action="bir_module.action_sls_report"/>
     <menuitem name="SLP" id="bir_module.slp" parent="bir_module.reports" action="bir_module.action_slp_report"/>
 
     <menuitem name="ATC Setup" id="bir_module.atc_setup" parent="bir_module.config" action="bir_module.atc_setup_action"/>
-    <menuitem name="Landed cost Vendors Setup" id="bir_module.landed_cost_vendor" parent="bir_module.config" action="bir_module.landed_cost_vendor_action"/>
+    <!-- <menuitem name="Landed cost Vendors Setup" id="bir_module.landed_cost_vendor" parent="bir_module.config" action="bir_module.landed_cost_vendor_action"/> -->
 
     <!-- <template id="assets_backend" inherit_id="web.assets_backend"> ### V14 Deprecated
         <xpath expr="." position="inside">

@@ -15,7 +15,7 @@
     # Check https://github.com/odoo/odoo/blob/14.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Uncategorized',
-    'version': '0.1',
+    'version': '1.1',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'account', 'web'],
@@ -30,6 +30,7 @@
         'reports/bir_form_2550M.xml',
         'reports/bir_form_2550Q.xml',
         'reports/bir_form_2307.xml',
+        'reports/bir_form_1601e.xml',
         'reports/paper_format.xml',
         # 'reports/bir_form_2550M.xml',
         # 'reports/bir_form_2550Q.xml',
