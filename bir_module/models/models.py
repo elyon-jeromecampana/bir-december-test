@@ -129,6 +129,34 @@ class bir_reports(models.Model):
 
         return str(quarter)
 
+    def get_bir_quarter_1(self, value):
+        quarter = 0
+        month = value.replace("-", " ").split()
+
+        if int(month[1]) <= 4: quarter = 1
+        elif int(month[1]) <= 8 and int(month[1]) > 4: quarter = 2
+        elif int(month[1]) <= 12 and int(month[1]) > 8: quarter = 3
+        else: quarter = 1
+
+        return str(quarter)
+
+    def x_process_landed_cost_many(self, data):
+        base_set = []
+        new_val = []
+        for x in data:
+            base_set.append(x[2])
+
+        for set_val in set(base_set):
+            new_val.append([set_val, []])
+
+        for dict_val in new_val:
+            for base in data:
+                if dict_val[0] == base[2]:
+                    dict_val[1].append(base)
+                    dict_val.append([base[3], base[4], base[5], base[6]])
+
+        return new_val
+
     def x_2550_forms(self, args):
         param = args[0].replace("-", " ").split()
         #                   AR or AP    TAX total per line  line total      tax Name    tax Amount       ven/cust name  industry    has landed cost?
@@ -459,3 +487,37 @@ class bir_reports(models.Model):
                     y['gross_tax'] += float(z[6]) + tax
 
         return vals
+
+
+##############################################################################################################################################################################
+################################################################ 1601e  ######################################################################################################
+##############################################################################################################################################################################
+
+    def x_1601e_print_action(self, month):
+        company_id = self.env.company.id
+        return self.env.ref('bir_module.1601e_report_action_id').report_action(self,data={'name':'BIR Form 1601e', 'month': month, 'company_id:': company_id})
+
+    def x_1601e_data(self, month):
+        param = month.replace("-", " ").split()
+
+        query = """ SELECT SUM(Abs(T1.price_total)), SUM(Abs(T1.tax_base_amount)), T4.name, T4.description, MAX(Abs(T3.amount)) 
+            FROM account_move T0 
+            JOIN account_move_line T1 ON T0.id = T1.move_id AND T1.exclude_from_invoice_tab = 'true' 
+            JOIN account_tax T3 ON T3.id = T1.tax_line_id 
+            JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
+            WHERE T0.company_id = {0} AND T0.move_type = 'out_invoice' AND EXTRACT(MONTH FROM T0.date) = {1} AND EXTRACT(YEAR FROM T0.date) = {2} GROUP BY T4.name, T4.description"""
+
+        self._cr.execute(query.format(self.env.company.id, param[1], param[0]))
+        val = self._cr.fetchall()
+
+        return val
+
+    def x_fetch_company_id(self):
+        return self.env.company.id
+
+    def x_format_vat(self, vat):
+        val = ""
+        if vat != False:
+            val = vat[:3] + "-" + vat[3:6] + "-" + vat[6:]
+
+        return str(val)

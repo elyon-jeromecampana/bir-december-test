@@ -30,6 +30,7 @@
         'reports/bir_form_2550M.xml',
         'reports/bir_form_2550Q.xml',
         'reports/bir_form_2307.xml',
+        'reports/bir_form_1601e.xml',
         'reports/paper_format.xml',
         # 'reports/bir_form_2550M.xml',
         # 'reports/bir_form_2550Q.xml',
