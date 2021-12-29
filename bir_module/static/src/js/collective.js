@@ -99,7 +99,7 @@ function construct_slp(data){
 
 		html += "<tr>";
 		html += "<th scope='row'></td>\
-			<td>" + format_vat(x.vat) + "-000</td>\
+			<td>" + format_vat(x.vat) + "</td>\
 			<td>" + numberWithCommas(x.name) + "</td>\
 			<td>" + numberWithCommas(x.gross_sales_po) + "</td>\
 			<td>" + numberWithCommas(x.exempt) + "</td>\
@@ -167,7 +167,7 @@ function construct_sls(data){
 
 		html += "<tr>";
 		html += "<th scope='row'></td>\
-			<td>" + format_vat(x.vat) + "-000</td>\
+			<td>" + format_vat(x.vat) + "</td>\
 			<td>" + numberWithCommas(x.name) + "</td>\
 			<td>" + numberWithCommas(x.gross_sales_po) + "</td>\
 			<td>" + numberWithCommas(x.exempt) + "</td>\
@@ -213,7 +213,7 @@ function numberWithCommas(x) {
 function format_vat(x){
 	str = "None";
 	if (x != null) {
-		str = x.slice(0,3) + "-" + x.slice(3,6) + "-" + x.slice(6);
+		str = x.slice(0,3) + "-" + x.slice(3,6) + "-" + x.slice(6) + "-000";
 	}
 	return str;
 }
