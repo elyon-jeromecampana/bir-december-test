@@ -370,7 +370,7 @@ class bir_reports(models.Model):
         query = """ SELECT DISTINCT(T1.vat), T1.name
             FROM account_move T0 
             JOIN res_partner T1 ON T1.id = T0.partner_id 
-            WHERE T0.company_id = {0} AND T0.state = 'posted' AND {2} """
+            WHERE T0.company_id = {0} AND T0.state = 'posted' AND T0.move_type = '{1}' AND {2} """
 
         self._cr.execute(query.format(self.env.company.id, trans, end_parameter))
         val = self._cr.fetchall()
