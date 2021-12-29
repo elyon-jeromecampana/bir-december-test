@@ -25,8 +25,15 @@
 						<!--upper container of information-->
 				<div class="container" style="position:absolute;text-align: left; color: black; top:140px; width:290mm;">
 
-					<!-- <div class="left" style="position: absolute; top:4px; left:316px; letter-spacing:11px; width:300px; font-size:21px"><t t-esc="doc.date.strftime('%m %Y')"/></div> -->
-					<div class="left" style="position: absolute; top:65px; left:78px;letter-spacing:9px; font-size:21px;"><t t-esc="payor.vat"/></div>
+					<t t-set="period" t-value="env['account.move'].fetch_period_dates(month)"/>
+					<div class="left" style="position: absolute; top:4px; left:316px; letter-spacing:11px; width:300px; font-size:21px"><t t-esc="period[6]"/></div>
+					<div class="left" style="position: absolute; top:4px; left:370px; letter-spacing:15px; width:300px; font-size:21px"><t t-esc="period[5]"/></div>
+
+					<t t-set="payor_vat" t-value="env['account.move'].x_slice_vat(payor.vat)"/>
+					<div class="left" style="position: absolute; top:65px; left:78px;letter-spacing:9px; font-size:21px;"><t t-esc="payor_vat[0]"/></div>
+					<div class="left" style="position: absolute; top:65px; left:158px;letter-spacing:9px; font-size:21px;"><t t-esc="payor_vat[1]"/></div>
+					<div class="left" style="position: absolute; top:65px; left:230px;letter-spacing:9px; font-size:21px;"><t t-esc="payor_vat[2]"/></div>
+
 					<div class="left" style="position: absolute; top:117px; left:49px;width:500px;"><t t-esc="payor.name"/></div>
 					<div class="left" style="position: absolute; top:168px; left:49px;width:500px;"><small><t t-esc="payor.street + ', ' + payor.city"/></small></div>
 					<div class="right" style="position: absolute; top:167px; left: 992px; letter-spacing: 9px; font-size: 20px"><t t-esc="payor.zip"/></div>
