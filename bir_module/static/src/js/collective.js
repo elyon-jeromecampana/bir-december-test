@@ -99,7 +99,7 @@ function construct_slp(data){
 
 		html += "<tr>";
 		html += "<th scope='row'></td>\
-			<td>" + x.vat + "000</td>\
+			<td>" + format_vat(x.vat) + "-000</td>\
 			<td>" + numberWithCommas(x.name) + "</td>\
 			<td>" + numberWithCommas(x.gross_sales_po) + "</td>\
 			<td>" + numberWithCommas(x.exempt) + "</td>\
@@ -167,7 +167,7 @@ function construct_sls(data){
 
 		html += "<tr>";
 		html += "<th scope='row'></td>\
-			<td>" + x.vat + "000</td>\
+			<td>" + format_vat(x.vat) + "-000</td>\
 			<td>" + numberWithCommas(x.name) + "</td>\
 			<td>" + numberWithCommas(x.gross_sales_po) + "</td>\
 			<td>" + numberWithCommas(x.exempt) + "</td>\
@@ -203,9 +203,17 @@ function construct_sls(data){
 }
 
 function numberWithCommas(x) {
-	str = 0;
+	var str = 0;
 	if (x != null) {
 		str = x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	}
     return str;
+}
+
+function format_vat(x){
+	str = "None";
+	if (x != null) {
+		str = x.slice(0,3) + "-" + x.slice(3,6) + "-" + x.slice(6);
+	}
+	return str;
 }
