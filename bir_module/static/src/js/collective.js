@@ -204,7 +204,7 @@ function construct_sls(data){
 
 function numberWithCommas(x) {
 	str = 0;
-	if (x == null) {
+	if (x != null) {
 		str = x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	}
     return str;
