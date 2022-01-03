@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from datetime import datetime
+import calendar
 import psycopg2
 import xlwt
 
@@ -59,18 +60,18 @@ class bir_reports(models.Model):
         return data
 
     def _2307_query(self, kwargs):
-        query = """ SELECT SUM(Abs(T1.price_total)*(Abs(T3.amount)/100)), SUM(T1.price_total), T5.name, T5.vat, T4.name, T3.name {2}
+        query = """ SELECT SUM(Abs(T1.price_total)*(Abs(T3.amount)/100)), SUM(T1.price_total), T5.name, T5.vat, T4.name, T3.name 
             FROM account_move T0 
             JOIN account_move_line T1 ON T0.id = T1.move_id AND (T1.is_landed_costs_line = 'false' OR T1.is_landed_costs_line IS NULL) 
             JOIN account_move_line_account_tax_rel T2 ON T1.id = T2.account_move_line_id 
             JOIN account_tax T3 ON T2.account_tax_id = T3.id 
             JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
             JOIN res_partner T5 ON T0.partner_id = T5.id 
-            WHERE T0.company_id = {0} AND T0.move_type = 'in_invoice' AND {1} GROUP BY T4.name, T3.name, T5.name, T5.vat {3}"""
+            WHERE T0.company_id = {0} AND T0.move_type = 'in_invoice' AND {1} GROUP BY T4.name, T3.name, T5.name, T5.vat"""
 
         end_parameter = self._2307_params(trans = kwargs[1], id = kwargs[0])
 
-        self._cr.execute(query.format(self.env.company.id, end_parameter[0], end_parameter[1], end_parameter[2]))
+        self._cr.execute(query.format(self.env.company.id, end_parameter[0]))
         val = self._cr.fetchall()
 
         return val
@@ -92,14 +93,6 @@ class bir_reports(models.Model):
 
         return val
 
-    def fetch_BP(self):
-        query = """ SELECT id, name FROM res_partner WHERE is_company = 'true' AND vat IS NOT NULL """
-
-        self._cr.execute(query)
-        val = self._cr.fetchall()
-
-        return val
-
     def _2307_params(self, **kwargs):
         param = ""
         field = ""
@@ -117,28 +110,6 @@ class bir_reports(models.Model):
             group = ", T0.date"
 
         return [param, field, group]
-
-    def get_bir_quarter(self, value):
-        quarter = 0
-        month = int(value.month)
-
-        if month <= 4: quarter = 1
-        elif month <= 8 and month > 4: quarter = 2
-        elif month <= 12 and month > 8: quarter = 3
-        else: quarter = 1
-
-        return str(quarter)
-
-    def get_bir_quarter_1(self, value):
-        quarter = 0
-        month = value.replace("-", " ").split()
-
-        if int(month[1]) <= 4: quarter = 1
-        elif int(month[1]) <= 8 and int(month[1]) > 4: quarter = 2
-        elif int(month[1]) <= 12 and int(month[1]) > 8: quarter = 3
-        else: quarter = 1
-
-        return str(quarter)
 
     def x_process_landed_cost_many(self, data):
         base_set = []
@@ -172,7 +143,7 @@ class bir_reports(models.Model):
 
         quarter = {'month': param[1], 'year': param[0], 'trans': 'month'}
         if args[1] == '2550Q':
-            quarter = {'month': self.x_2550_qrtrs(int(param[1])), 'year': param[0], 'trans': 'qrtr'}
+            quarter = {'month': self.x_2550_qrtrs(param), 'year': param[0], 'trans': 'qrtr'}
 
         end_param = self.x_2550_param(quarter)
 
@@ -249,19 +220,6 @@ class bir_reports(models.Model):
         else:
             return self.env.ref('bir_module.bir_form_2550Q').report_action(self,data={'name':'BIR Form 2550Q', 'month': args['month'], 'trans': args['trans']})
 
-    def x_2550_qrtrs(self, month):
-        quarter = []
-        if month >= 1 and month <= 3:
-            quarter = [1, 3, "January", "March"]
-        elif month >= 4 and month <= 6:
-            quarter = [4, 6, "April", "June"]
-        elif month >= 7 and month <= 9:
-            quarter = [7, 9, "July", "September"]
-        else:
-            quarter = [10, 12, "October", "December"]
-
-        return quarter
-
     def x_2550_param(self, data):
         query = ""
 
@@ -316,19 +274,6 @@ class bir_reports(models.Model):
         val = self._cr.fetchall()
 
         return val
-
-    def check_quarter(self, month):
-        iden = ["monthly", month]
-        if month == 3:
-            iden = [1, 3, "January - March"]
-        elif month == 6:
-            iden = [4, 6, "April - June"]
-        elif month == 9:
-            iden = [7, 9, "July - September"]
-        elif month == 12:
-            iden = [10, 12, "October - December"]
-        
-        return iden
 
     def sawt_map_params(self, param, year):
         append = ""
@@ -404,11 +349,6 @@ class bir_reports(models.Model):
         except Exception as ex:
             return str(ex)
 
-    def get_string_month(self, num):
-        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-        return months[num-1]
-
 ##############################################################################################################################################################################
 ################################################################ SLS AND SLP #################################################################################################
 ##############################################################################################################################################################################
@@ -430,7 +370,7 @@ class bir_reports(models.Model):
         query = """ SELECT DISTINCT(T1.vat), T1.name
             FROM account_move T0 
             JOIN res_partner T1 ON T1.id = T0.partner_id 
-            WHERE T0.company_id = {0} AND T0.state = 'posted' AND {2} """
+            WHERE T0.company_id = {0} AND T0.state = 'posted' AND T0.move_type = '{1}' AND {2} """
 
         self._cr.execute(query.format(self.env.company.id, trans, end_parameter))
         val = self._cr.fetchall()
@@ -483,8 +423,8 @@ class bir_reports(models.Model):
                     y['zero_rated'] += float(z[8])
                     y['taxable'] += float(z[6])
                     y['po_other'] += float(z[6])
-                    y['tax'] += tax
-                    y['gross_tax'] += float(z[6]) + tax
+                    y['tax'] += round(tax, 2)
+                    y['gross_tax'] += round(float(z[6]) + tax, 2)
 
         return vals
 
@@ -512,8 +452,95 @@ class bir_reports(models.Model):
 
         return val
 
-    def x_fetch_company_id(self):
-        return self.env.company.id
+
+##############################################################################################################################################################################
+################################################################ GENERAL FUNCTIONS  ##########################################################################################
+##############################################################################################################################################################################
+
+    def check_quarter(self, month):
+        iden = ["monthly", month]
+        if month == 3:
+            iden = [1, 3, "January - March"]
+        elif month == 6:
+            iden = [4, 6, "April - June"]
+        elif month == 9:
+            iden = [7, 9, "July - September"]
+        elif month == 12:
+            iden = [10, 12, "October - December"]
+        
+        return iden
+
+    def get_string_month(self, num):
+        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        return months[num-1]
+
+    def x_2550_qrtrs(self, param):
+        month = int(param[1])
+        quarter = []
+        if month >= 1 and month <= 3:
+            quarter = [1, 3, "January", "March", 1]
+        elif month >= 4 and month <= 6:
+            quarter = [4, 6, "April", "June", 2]
+        elif month >= 7 and month <= 9:
+            quarter = [7, 9, "July", "September", 3]
+        else:
+            quarter = [10, 12, "October", "December", 4]
+
+        return quarter
+
+    def fetch_BP(self):
+        query = """ SELECT id, name FROM res_partner WHERE is_company = 'true' AND vat IS NOT NULL """
+
+        self._cr.execute(query)
+        val = self._cr.fetchall()
+
+        return val
+
+    def get_bir_quarter(self, value):
+        quarter = 0
+        month = int(value.month)
+
+        if month == 4 or month == 1 or month == 7 or month == 10: quarter = 1
+        elif month == 2 or month == 5 or month == 8 or month == 11: quarter = 2
+        else: quarter = 3
+
+        return str(quarter)
+
+    def get_bir_quarter_1(self, value):
+        quarter = 0
+        month = self.splice_month(value)
+
+        if int(month[1]) == 4 or int(month[1]) == 1 or int(month[1]) == 7 or int(month[1]) == 10: quarter = 1
+        elif int(month[1]) == 2 or int(month[1]) == 5 or int(month[1]) == 8 or int(month[1]) == 11: quarter = 2
+        else: quarter = 1
+
+        return str(quarter)
+
+    def splice_month(self, month):
+        return month.replace("-", " ").split()
+
+    def get_marker_quarter(self, month):
+        return self.x_2550_qrtrs(self.splice_month(month))
+
+    def fetch_period_dates(self, value):
+        vals = self.splice_month(value)
+
+        month = self.x_2550_qrtrs(vals)
+
+        range1 = calendar.monthrange(int(vals[0]), int(month[0]))
+        range2 = calendar.monthrange(int(vals[0]), int(month[1]))
+
+        month1 = str(month[0])
+        month2 = str(month[1])
+
+        if int(month[0]) < 10:
+            month1 = "0" + month1
+
+        if int(month[1]) < 10:
+            month2 = "0" + month2
+
+        return [str(vals[0][2:]), month1, month2, str(range1[1]), str(range2[1]), str(vals[0]), str(vals[1])]
 
     def x_format_vat(self, vat):
         val = ""
@@ -521,3 +548,13 @@ class bir_reports(models.Model):
             val = vat[:3] + "-" + vat[3:6] + "-" + vat[6:]
 
         return str(val)
+
+    def x_slice_vat(self, vat):
+        val = []
+        if vat != False:
+            val = [vat[:3], vat[3:6], vat[6:], '000']
+
+        return val
+
+    def x_fetch_company_id(self):
+        return self.env.company.id

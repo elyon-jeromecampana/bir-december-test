@@ -24,6 +24,7 @@
 	<template id="form_2550Q">
 		<t t-call='web.basic_layout'>
 			<div class="page">
+
 				<t t-set="val" t-value="env['account.move'].x_2550_forms([month, trans])"/>
 				<t t-set='company' t-value="request.env['res.company'].search([('id', '=', val[2])])"/>
 				<t t-set='payor' t-value="request.env['res.partner'].search([('id', '=', company.partner_id.id)])"/>
@@ -34,14 +35,36 @@
 						<!--upper container of information-->
 					<div class="container" style="position: absolute;text-align: left; color: black; top:140px; width:100%">
 
-						<div class="left" style="position: absolute; top:0.01mm; left:131px;font-size:15px">X</div>
-						<div class="left" style="position: absolute; top:15px; left:131px; letter-spacing:15px; width:300px; font-size:19px">12 2021</div>
-						<div class="left" style="position:absolute; top:55px; left:80px; letter-spacing:6px; font-size:19px"><t t-esc="payor.vat"/></div>
+						<div class="left" style="position: absolute; top:-7px; left:131px;font-size:15px">X</div>
+
+						<t t-set="qrtr" t-value="env['account.move'].get_marker_quarter(month)"/>
+						<t t-if="qrtr[4] == 1"><div class="left" style="position: absolute; top:-8px; left:383px;font-size:15px">X</div></t>
+						<t t-if="qrtr[4] == 3"><div class="left" style="position: absolute; top:-8px; left:438px;font-size:15px">X</div></t>
+						<t t-if="qrtr[4] == 2"><div class="left" style="position: absolute; top:20px; left:383px;font-size:15px">X</div></t>
+						<t t-if="qrtr[4] == 4"><div class="left" style="position: absolute; top:20px; left:438px;font-size:15px">X</div></t>
+
+						<t t-set="period" t-value="env['account.move'].fetch_period_dates(month)"/>
+						<div class="left" style="position: absolute; top:15px; left:131px; letter-spacing:15px; width:300px; font-size:19px">12 <t t-esc="period[5]"/></div>
+
+						<div class="left" style="position: absolute; top:-7px; left:610px; letter-spacing:11px; width:300px; font-size:19px"><t t-esc="period[1]"/></div>
+						<div class="left" style="position: absolute; top:-7px; left:660px; letter-spacing:11px; width:300px; font-size:19px"><t t-esc="period[3]"/></div>
+						<div class="left" style="position: absolute; top:-7px; left:705px; letter-spacing:11px; width:300px; font-size:19px"><t t-esc="period[0]"/></div>
+
+						<div class="left" style="position: absolute; top:18px; left:610px; letter-spacing:11px; width:300px; font-size:19px"><t t-esc="period[2]"/></div>
+						<div class="left" style="position: absolute; top:18px; left:660px; letter-spacing:11px; width:300px; font-size:19px"><t t-esc="period[4]"/></div>
+						<div class="left" style="position: absolute; top:18px; left:705px; letter-spacing:11px; width:300px; font-size:19px"><t t-esc="period[0]"/></div>
+
+
+						<!-- <div class="left" style="position:absolute; top:52px; left:80px; letter-spacing:6px; font-size:19px"><t t-esc="payor.vat"/></div> -->
+						<t t-set="payor_vat" t-value="env['account.move'].x_slice_vat(payor.vat)"/>
+						<div class="left" style="position: absolute; top:50px; left:78px;letter-spacing:6px; font-size:23px;"><t t-esc="payor_vat[0]"/></div>
+						<div class="left" style="position: absolute; top:50px; left:145px;letter-spacing:6px; font-size:23px;"><t t-esc="payor_vat[1]"/></div>
+						<div class="left" style="position: absolute; top:50px; left:212px;letter-spacing:6px; font-size:23px;"><t t-esc="payor_vat[2]"/></div>
+
 						<div class="left" style="position:absolute;top:100px;left:49px;width:500px"><t t-esc="payor.name"/></div>
 						<div class="right" style="position: absolute; top:99px; left: 800px; letter-spacing: 13px; font-size: 17px"><t t-esc="payor.phone"/></div>
 						<div class="left" style="position: absolute; top:145px; left:49px;width:500px;"><small><t t-esc="payor.street + ', ' + payor.city"/></small></div>
 						<div class="right" style="position: absolute; top:147px; left: 915px; letter-spacing: 9px; font-size: 18px"><t t-esc="payor.zip"/></div>
-					
 					</div>
 														<!--center container of tax output-->
 					<div class="container" style="position:absolute; text-align:left; color:black; top:370px; width:100%;">
